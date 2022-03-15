@@ -1,0 +1,214 @@
+<form id="calc" method="post" action="<%= @action %>" role="form" enctype="multipart/form-data" data-parsley-validate>
+	<%= x_card_top(title: "Original Loan Terms") %>
+	<div class="row">
+		<div class="col-md-6">
+			<table class="table table-striped">
+				<tr>
+					<th>Current Max Loan</th>
+					<td>
+						<%= @loan.mod_original_loan_amount.to_s(:currency) rescue nil %>
+					</td>
+				</tr>
+				<tr>
+					<th>Original Holdback</th>
+					<td>
+						<%= @loan.mod_original_holdback.to_s(:currency) rescue nil %>
+					</td>
+				</tr>
+				<tr>
+					<th>Original Interest Reserve</th>
+					<td>
+						<%= @loan.mod_original_ir.to_s(:currency) rescue nil %>
+					</td>
+				</tr>
+				<tr>
+					<th>Original Interest Rate</th>
+					<td>
+						<%= @loan.mod_previous_interest_rate.to_s(:percentage) %>
+					</td>
+				</tr>
+				<tr>
+					<th>Original Maturity Date</th>
+					<td>
+						<%= x_format_date(date: @loan.mod_previous_maturity_date, show_month: true, show_time: false)%>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="col-md-6">
+			<table class="table table-striped">
+				<tr>
+					<th valign="top">Reason for Modification</th>
+					<td valign="top"><%= @loan.questionnaires.first.reason_for_modification rescue nil%></td>
+				</tr>
+				<tr>
+					<th valign="top">New Exit Strategy</th>
+					<td valign="top"><%= @loan.questionnaires.first.new_exit_strategy rescue nil %></td>
+				</tr>
+				<tr>
+					<th valign="top">Purpose for new funds</th>
+					<td valign="top"><%= @loan.questionnaires.first.purpose_for_new_funds rescue nil%></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<%= x_card_bottom %>
+	<% if ['master','accounting','servicing'].include?(session[:user_role]) %>
+		<%= x_card_top(title: "For Servicing") %>
+		<div class="row disable">
+			<div class="col-md-4">
+				<%= x_money(name: "mod_previous_loan_amount", id: "mod_previous_loan_amount", value: @loan.mod_previous_loan_amount, label: "Current Max Note Amount", required: true) %>
+			</div>
+			<div class="col-md-4">
+				<%= x_money(name: "mod_previous_holdback", id: "mod_previous_holdback", value: @loan.mod_previous_holdback, label: "Current Holdback", required: true) %>
+			</div>
+			<div class="col-md-4">
+				<%= x_money(name: "mod_previous_ir", id: "mod_previous_ir", value: @loan.mod_previous_ir, label: "Current Interest Reserve", required: true) %>
+			</div>
+		</div>
+		<div class="row disable">
+			<div class="col-md-4">
+				<%= x_money(name: "mod_past_due_interest", id: "mod_past_due_interest", value: @loan.mod_past_due_interest, label: "Accured Interest Due", required: true) %>
+			</div>
+			<div class="col-md-4">
+				<%= x_money(name: "mod_late_fees", id: "mod_late_fees", value: @loan.mod_late_fees, label: "Late Fee(s)", required: true) %>
+			</div>
+			<div class="col-md-4">
+				<%= x_money(name: "mod_misc_fee", id: "mod_misc_fee", value: @loan.mod_misc_fee, label: "Misc Fee(s)/Costs", required: true) %>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-striped" width="100%">
+					<tr>
+						<th>File Name</th>
+						<th>Download</th>
+					</tr>
+					<% @loan.questionnaires.each do |question| %>
+						<% if question.new_sow.present? %>
+							<tr>
+								<td><%= question.new_sow %></td>
+								<td><%= get_loan_question_download_button(id: question.id, loan: @loan) %></td>
+							</tr>
+						<% end %>
+					<% end %>
+				</table>
+			</div>
+		</div>
+		<%= x_card_bottom %>
+	<% end %>
+	<%= x_card_top(title: "For Sales") %>
+	<div class="row">
+		<div class="col-md-4">
+			<%= x_money(name: "mod_additional_holdback", id: "mod_additional_holdback", value: @loan.mod_additional_holdback, label: "Additional Holdback", required: true) %>
+		</div>
+		<div class="col-md-4">
+			<%= x_money(name: "mod_additional_ir", id: "mod_additional_ir", value: @loan.mod_additional_ir, label: "Additional Interest Reserve", required: true) %>
+		</div>
+		<div class="col-md-4">
+			<%= x_select(name: "loan_term", id: "loan_term", option_data: get_loan_terms, label: "Additional Term", selected_value: @loan.loan_term) %>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-4">
+			<%= x_select(name: "extension_term", id: "extension_term", option_data: get_mod_extension_days, label: "Available Extension Terms", selected_value: @loan.extension_term) %>
+		</div>
+		<div class="col-md-4">
+			<%= x_money(name: "cash_out", id: "cash_out", value: @loan.cash_out, label: "Cash Out", required: true) %>
+		</div>
+		<div class="col-md-4">
+			<%= x_date(name: "estimated_closing_date", id: "estimated_closing_date", value: @loan.estimated_closing_date, label: "Projected Funding Date", required: true) %>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-4">
+			<%= x_percentage(name: "interest_rate", id: "interest_rate", value: @loan.interest_rate, label: "New Interest Rate", required: true) %>
+		</div>
+		<div class="col-md-4">
+			<%= x_money(name: "processing_fee", id: "processing_fee", value: @loan.processing_fee, label: "Processing Fee", required: true) %>
+		</div>
+		<div class="col-md-4">
+			<%= x_money(name: "mod_fee", id: "mod_fee", value: @loan.mod_fee, label: "Mod Fee", required: true) %>
+		</div>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col-md-2">
+			<%= x_switch(name: "finance_mod_fee_switch", id: "finance_mod_fee_switch", value: "1", checked: @loan.finance_mod_fee_switch,label: "Finance Mod Fees") %>
+		</div>
+		<div class="col-md-2">
+			<%= x_switch(name: "finance_processing_fee_switch", id: "finance_processing_fee_switch", value: "1", checked: @loan.finance_processing_fee_switch,label: "Finance Processing Fees") %>
+		</div>
+		<div class="col-md-2">
+			<%= x_switch(name: "finance_late_fees_switch", id: "finance_late_fees_switch", value: "1", checked: @loan.finance_late_fees_switch,label: "Finance Late Fees") %>
+		</div>
+		<div class="col-md-2">
+			<%= x_switch(name: "finance_title_fees_switch", id: "finance_title_fees_switch", value: "1", checked: @loan.finance_title_fees_switch,label: "Finance Title Fees") %>
+		</div>
+		<div class="col-md-2">
+			<%= x_switch(name: "finance_past_due_interest_switch", id: "finance_past_due_interest_switch", value: "1", checked: @loan.finance_past_due_interest_switch,label: "Finance Interest Due") %>
+		</div>
+		<div class="col-md-2">
+			<%= x_switch(name: "finance_misc_fees_switch", id: "finance_misc_fees_switch", value: "1", checked: @loan.finance_misc_fees_switch,label: "Finance Misc Fees") %>
+		</div>
+	</div>
+	<%= x_submit(label: "Calculate", css: "btn-fill btn-info btn-block", icon: "fa-check") %>
+	<%= x_card_bottom %>
+	<!---
+	<div class="row">
+		<div class="col-md-4">
+			<div class="form-group">
+				<label>Total Holdback funds<sup class="text-danger">*</sup></label>
+				<div class="input-group">
+					<span class="input-group-addon">$</span>
+					<input type="text" class="form-control money" id="holdback_funds" value="<%= @loan.holdback_funds.to_s(:currency, precision: 2) %>" data-parsley-type="number">
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-4">
+			<div class="form-group">
+				<label>Total Interest Reserve<sup class="text-danger">*</sup></label>
+				<div class="input-group">
+					<span class="input-group-addon">$</span>
+					<input type="text" class="form-control money" id="interest_reserve" value="<%=  @loan.interest_reserve.to_s(:currency, precision: 2) %>" data-parsley-type="number">
+				</div>
+			</div>
+		</div>
+	</div>
+	--->
+	<%= x_hidden(name: "escrow_or_auction", id: "escrow_or_auction", value: "1" ) %>
+	<%= x_hidden(name: "loan_type_id", id: "loan_type_id", value: "2" ) %>
+</form>
+<% content_for :js_scripts do %>
+	<!---
+	<script>
+		$(document).ready(function() {
+		  $('#mod_additional_holdback').change(function(){
+		    $('#holdback_funds').val((parseFloat(this.value) + parseFloat($('#mod_previous_holdback').val())).toFixed(2));
+		  });
+		  $('#mod_previous_holdback').change(function(){
+		    $('#holdback_funds').val((parseFloat(this.value) + parseFloat($('#mod_additional_holdback').val())).toFixed(2));
+		  });
+		  $('#mod_additional_ir').change(function(){
+		    $('#interest_reserve').val((parseFloat(this.value) + parseFloat($('#mod_previous_ir').val())).toFixed(2));
+		  });
+		  $('#mod_previous_ir').change(function(){
+		    $('#interest_reserve').val((parseFloat(this.value) + parseFloat($('#mod_additional_ir').val())).toFixed(2));
+					});
+		});
+	</script>
+	--->
+	<script>
+		$(document).ready(function() {
+		  var role = "<%= session[:user_role] %>";
+		  if (!(role == 'master' || role == 'servicing')){
+		    $('.disable').find('input:text').prop('disabled', true);
+		  }
+		  else{
+		    $('.disable').find('input:text').prop('disabled', false);
+		  }
+		});
+	</script>
+<% end %>

@@ -1,0 +1,62 @@
+<template>
+  <div>
+    <VerstoneGrid :data="draw_requests">
+      <e-columns>
+        <e-column field="loan_number" headerText="Loan Number" textAlign="Left"></e-column>
+        <e-column field="borrower" headerText="Borrower" textAlign="Left"></e-column>
+        <e-column
+          field="asking_amount"
+          headerText="Asking Amount"
+          :format="formatOptions"
+          textAlign="Left"
+        ></e-column>
+        <e-column field="client_requested_on" headerText="Client Request Date" textAlign="Left"></e-column>
+        <e-column field="status" headerText="Status" textAlign="Left"></e-column>
+        <e-column headerText="Action" :commands="commands" textAlign="Left"></e-column>
+      </e-columns>
+    </VerstoneGrid>
+  </div>
+</template>
+
+<script>
+import Vue from "vue";
+import { CommandColumn, parentsUntil } from "@syncfusion/ej2-vue-grids";
+import { ButtonPlugin } from "@syncfusion/ej2-vue-buttons";
+import VerstoneGrid from "@/components/ldb/Layout/SyncfusionGrid.vue";
+
+Vue.use(ButtonPlugin);
+
+export default {
+  props: ["draw_requests", "all_draws"],
+  components: { VerstoneGrid },
+  data() {
+    return {
+      commands: [
+        {
+          buttonOption: {
+            cssClass: "e-link btn-success",
+            content: "View Detail",
+            click: this.onClick
+          }
+        }
+      ],
+      formatOptions: { format: "C2", currency: "USD" }
+    };
+  },
+  methods: {
+    onClick: function(args) {
+      var rowEle = parentsUntil(event.target, "e-row");
+      var rowIndex = parseInt(rowEle.getAttribute("aria-rowindex"));
+      var selectedData = this.draw_requests[rowIndex];
+      for( var i =0; i<this.all_draws.length;i++ ){
+        if(this.all_draws[i].loan_number == selectedData.loan_number){
+          this.$router.push(`/loans/${this.all_draws[i].loan_id}/draws/`);          
+        }
+      }    
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+</style>

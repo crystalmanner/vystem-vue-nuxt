@@ -1,0 +1,481 @@
+<%= x_card_top(title: "Escrow Loan Details") %>
+				<form id="calc" method="post" action="<%= @action %>" role="form" data-parsley-validate <%= @target %>
+						>
+						<div class="row">
+							<div class="col-md-12">
+								<% if @target.nil? %>
+					<% if @loan_locked %>
+						<div class="form-group form-actions text-right">
+							<button type="button" class="btn-fill btn-info" disabled=""><i class="fa fa-check"></i> Locked</button>
+						</div>
+					<% else %>
+						<% if @loan.status == "Pending" %>
+						  <%= x_submit(label: "Calculate & Save", css: "btn-fill btn-info btn-block", icon: "fa-check") %>
+						<% end %>
+					<% end %>
+				<% else %>
+					<% if @loan_locked %>
+						<div class="form-group form-actions text-right">
+							<button type="button" class="btn btn-fill btn-info" disabled=""><i class="fa fa-check"></i> Launch in Sandbox</button>
+						</div>
+					<% else %>
+						<%= x_submit(label: "Launch in Sandbox", css: "btn-fill btn-info btn-block", icon: "fa-check") %>
+					<% end %>
+				<% end %>
+							</div>
+						</div>
+				<div class="row">
+
+					<div class="col-md-6">
+						<%= x_select(name: "loan_program_id", id: "loan_program_id", option_data: @loan_programs, label: "Loan Program", selected_value: @loan.loan_program_id) %>
+					</div>
+					<div class="col-md-3">
+						<%= x_select(name: "interest_type", id: "interest_type", option_data: get_interest_types, label: "Interest Type", selected_value: @loan.interest_type) %>
+					</div>
+					<div class="col-md-3">
+
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4">
+						<%= x_money(name: "purchase_price", id: "purchase_price", value: @loan.purchase_price, label: "Purchase Price", required: true) %>
+					</div>
+					<div class="col-md-4">
+					<%= x_percentage(name: "interest_rate", id: "interest_rate", value: @loan.interest_rate, label: "Interest Rate", required: true) %>
+					</div>
+					<div class="col-md-4">
+						<%= x_select(name: "loan_term", id: "loan_term", option_data: get_loan_terms, label: "Term", selected_value: @loan.loan_term) %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4">
+						<%= x_percentage(name: "origination_fee_percent", id: "origination_fee_percent", value: @loan.origination_fee_percent, label: "Origination Fee", required: true) %>
+					</div>
+					<div class="col-md-4">
+						<%= x_money(name: "processing_fee", id: "processing_fee", value: @loan.processing_fee, label: "Processing Fee", required: true) %>
+					</div>
+					<div class="col-md-4">
+						<%= x_money(name: "insurance_fee", id: "insurance_fee", value: @loan.insurance_fee, label: "Insurance Fee", required: true) %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<%= x_money(name: "third_party_fees", id: "third_party_fees", value: @loan.third_party_fees, label: "Third Party Fees", required: true) %>
+					</div>
+					<div class="col-md-6">
+						<%= x_date(name: "estimated_closing_date", id: "estimated_closing_date", value: @loan.estimated_closing_date, label: "Projected Funding Date", required: true) %>
+					</div>
+				</div>
+				<hr>
+				<div class="row">
+					<div class="col-md-3">
+						<%= x_percentage(name: "downpayment_percent", id: "downpayment_percent", value: @loan.downpayment_percent, label: "Downpayment Percent", required: true) %>
+					</div>
+					<div class="col-md-3">
+						<%= x_money(name: "downpayment_amount", id: "downpayment_amount", value: @loan.downpayment_amount, label: "Downpayment Amount", required: true) %>
+					</div>
+					<div class="col-md-6">
+					<%= x_switch(name: "downpayment_calc_on_percent", id: "downpayment_calc_on_percent", value: "1", checked: @loan.downpayment_calc_on_percent,label: "Downpayment Calculated by Percentage") %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4">
+						<%= x_money(name: "earnest_money", id: "earnest_money", value: @loan.earnest_money, label: "Earnest Money", required: true, ) %>
+					</div>
+					<div class="col-md-4">
+							<%= x_money(name: "holdback_funds", id: "holdback_funds", value: @loan.holdback_funds, label: "Holdback", required: true) %>
+					</div>
+					<div class="col-md-4">
+						<%= x_select(name: "draw_method", id: "draw_method", option_data: get_draw_methods, label: "Draw Method", selected_value: @loan.draw_method) %>
+					</div>
+				</div>
+				<hr>
+				<div class="row">
+					<div class="col-md-3">
+						<%= x_money(name: "broker_fee", id: "broker_fee", value: @loan.broker_fee, label: "Broker Fee", required: true) %>
+					</div>
+					<div class="col-md-3">
+						<%= x_switch(name: "broker_fee_in_loan", id: "broker_fee_in_loan", value: "1", checked: @loan.broker_fee_in_loan ,label: "Finance Broker Fee") %>
+					</div>
+					<div class="col-md-3">
+						<%= x_money(name: "wholesale_fee", id: "wholesale_fee", value: @loan.wholesale_fee, label: "Wholesale fee", required: true) %>
+					</div>
+					<div class="col-md-3">
+						<%= x_switch(name: "wholesale_fee_in_loan", id: "wholesale_fee_in_loan", value: "1", checked: @loan.wholesale_fee_in_loan ,label: "Finance Wholesale Fee") %>
+					</div>
+				</div>
+				<hr>
+				<div class="row">
+					<div class="col-md-6">
+						<%= x_select(name: "extension_term", id: "extension_term", option_data: get_extension_days, label: "Extension Terms", selected_value: @loan.extension_term, required: true, add_none: true) %>
+					</div>
+					<div class="col-md-6">
+						<%= x_select(name: "early_payoff_credit_days", id: "early_payoff_credit_days", option_data: get_payoff_credit_days, label: "Payoff Credit Days", selected_value: @loan.early_payoff_credit_days, required: true, add_none: true) %>
+					</div>
+				</div>
+				<hr>
+				<div class="row">
+					<div class="col-md-4">
+						<%= x_number(name: "interest_reserve_type", id: "interest_reserve_type", value: @loan.interest_reserve_type, label: "Interest Reserve Months", required: true) %>
+					</div>
+					<div class="col-md-4">
+						<%= x_money(name: "interest_reserve", id: "interest_reserve", value: @loan.interest_reserve, label: "Interest Reserve", required: true) %>
+					</div>
+					<div class="col-md-4">
+						<%= x_switch(name: "interest_reserve_calc_on_type", id: "interest_reserve_calc_on_type", value: "1", checked: @loan.interest_reserve_calc_on_type,label: "Enter Interest Reserve Amount") %>
+					</div>
+				</div>
+				<hr>
+				<%# x_hidden(name: "escrow_or_auction", id: "escrow_or_auction", value: "1" ) %>
+				<%# x_hidden(name: "loan_type_id", id: "loan_type_id", value: "0" ) %>
+				<% if @target.nil? %>
+					<% if @loan_locked %>
+						<div class="form-group form-actions text-right">
+							<button type="button" class="btn-fill btn-info" disabled=""><i class="fa fa-check"></i> Calculate</button>
+						</div>
+					<% else %>
+						<% if @loan.status == "Pending" %>
+						  <%= x_submit(label: "Calculate & Save", css: "btn-fill btn-info btn-block", icon: "fa-check") %>
+						  <% if request.path_info.include?("/sales/loans/") %>
+						    <button type="submit" class="btn btn-fill btn-info btn-block">Save & Finalize</button>
+						  <% end %>
+						<% end %>
+					<% end %>
+				<% else %>
+					<% if @loan_locked %>
+						<div class="form-group form-actions text-right">
+							<button type="button" class="btn btn-fill btn-info" disabled=""><i class="fa fa-check"></i> Launch in Sandbox</button>
+						</div>
+					<% else %>
+						<%= x_submit(label: "Launch in Sandbox", css: "btn-fill btn-info btn-block", icon: "fa-check") %>
+					<% end %>
+				<% end %>
+					<% if request.path_info.include?("/sandbox/") %>
+					<%= x_hidden(name: "escrow_or_auction", id: "escrow_or_auction", value: "1" ) %>
+					<%= x_hidden(name: "loan_type_id", id: "loan_type_id", value: "0" ) %>
+
+					<% end %>
+
+				</form>
+		<%= x_card_bottom %>
+
+
+<% content_for :js_scripts do %>
+	<script>
+	$(document).ready(function() {
+		// Set Read Only
+
+		// Disabled
+		fees ='<%= @loan.origination_fee_percent%>'
+		if (fees < 3){
+			$('#early_payoff_credit_days').prop('disabled',true);
+			$('#early_payoff_credit_days').selectpicker('render');
+		}
+		else{
+			$('#early_payoff_credit_days').prop('disabled',false);
+			$('#early_payoff_credit_days').selectpicker('render');
+		}
+
+		// Third Party Fees
+		$('#third_party_fees').attr('readonly', true);
+		$('#third_party_fees').prop('required', false);
+
+		// Insurance Fees
+		$('#insurance_fee').attr('readonly', true);
+
+		// Init Functions
+		initFuction = function(){
+			// $('button#interest_type').prop('readonly', false);
+			// $('button#draw_method').prop('readonly', false);
+			// $('#holdback_funds').prop('readonly', false);
+			// $('#interest_type').selectpicker('val', 'Dutch');
+			// $('#draw_method').selectpicker('val', 'Reimburesment');
+			// $('#interest_reserve').prop('readonly', false);
+			// $('#interest_reserve').val('0.00');
+			$('.parsley-errors-list').remove();
+			$('input.error').removeClass('error');
+		}
+
+		// Interest Init Functions
+		interestInitFuction = function(){
+			$('#interest_reserve').prop('readonly', false);
+	  	// $('#interest_reserve').val('0.00');
+	  	$('#interest_reserve_type').prop('readonly', false);
+	  	// $('#interest_reserve_type').val('0');
+		}
+
+		// Interest Init Functions
+		drawMethodInitFuction = function(){
+			$('#interest_reserve').prop('readonly', false);
+	  	// $('#interest_reserve').val('0.00');
+	  	$('#interest_reserve_type').prop('readonly', false);
+	  	// $('#interest_reserve_type').val('0');
+		}
+
+
+		// Check Loans
+		checkLoans = function(){
+
+
+		}
+
+		// Brige Functions
+		bridgeFunctions = function(){
+
+			// Set Value to Dutch and Disable
+	  	$('#interest_type').selectpicker('val', 'Dutch');
+	  	$('button#interest_type').prop('readonly', true);
+	  	$('button#draw_method').prop('readonly', true);
+	  	$('#holdback_funds').prop('readonly', true);
+	  	$('#holdback_funds').val('0.00');
+	  	$('#holdback_funds').removeAttr('data-parsley-greater-than-zero');
+	  	//interestReserveAmountOffFunction();
+
+	  }
+
+	  	// Fix and Flip Functions
+		ffFunctions = function(){
+
+			// Set Value to Dutch and Disable
+	  	// $('#interest_type').selectpicker('val', 'Dutch');
+	  	$('button#interest_type').prop('readonly', false);
+	  	$('button#draw_method').prop('readonly', false);
+	  	$('#holdback_funds').prop('readonly', false);
+	  	$('#holdback_funds').attr('data-parsley-greater-than-zero', true);
+
+	  }
+
+	  // Fix and Flip Functions
+		v100Functions = function(){
+
+			// Set Value to Dutch and Disable
+	  	$('#interest_type').selectpicker('val', 'Dutch');
+	  	$('button#interest_type').prop('readonly', true);
+	  	$('button#draw_method').prop('readonly', true);
+	  	$('#holdback_funds').val('0.00');
+	  	$('#holdback_funds').prop('readonly', true);
+	  	$('#holdback_funds').removeAttr('data-parsley-greater-than-zero');
+	  	interestReserveAmountOffFunction();
+
+	  }
+
+  	// Construction Functions
+		constructionFunctions = function(){
+
+			// check method
+	  	$('button#draw_method').prop('readonly', true);
+	  	$('#holdback_funds').prop('readonly', false);
+	  	$('#holdback_funds').attr('data-parsley-greater-than-zero', true);
+	  	
+	  }
+
+
+	   // Fix and Flip Functions
+		vMaxFunctions = function(){
+
+			// Set Value to Dutch and Disable
+	  	$('#interest_type').selectpicker('val', 'Drawn');
+	  	$('button#interest_type').prop('readonly', true);
+	  	$('button#draw_method').prop('readonly', true);
+	  	$('#holdback_funds').val('0.00');
+	  	$('#holdback_funds').prop('readonly', true);
+	  	$('#holdback_funds').removeAttr('data-parsley-greater-than-zero');
+	  	interestReserveAmountOnFunction();
+
+	  }
+
+	  // Dutch Functions
+		dutchFunctions = function(){
+
+			// check method
+	  	interestReserveAmountOffFunction();
+
+	  }
+
+
+		// Drawn Functions
+		drawnFunctions = function(){
+
+			// check method
+	  	interestReserveAmountOnFunction();
+
+	  }
+
+
+		// Draw Method Functions
+		advanceFunctions = function(){
+
+			// check method
+	  	interestReserveAmountOffFunction();
+
+	  }
+
+	  // Draw Method Functions
+		reimbursementFunctions = function(){
+
+			// check method
+	  	interestReserveAmountOffFunction();
+
+	  }
+
+	  // Toggle Interest Reserve
+	  interestReserveAmountOnFunction = function(){
+			$("#interest_reserve_calc_on_type").parent().children('div.switch-animate').removeClass('switch-off').addClass('switch-on');
+			$("input#interest_reserve_calc_on_type").val(1);
+			$('#interest_reserve').prop('readonly', false);
+	  	// $('#interest_reserve').val('0.00');
+	  	$('#interest_reserve_type').prop('readonly', true);
+	  	$('#interest_reserve_type').val('0');
+
+	  }
+
+	   interestReserveAmountOffFunction = function(){
+			$("#interest_reserve_calc_on_type").parent().children('div.switch-animate').removeClass('switch-on').addClass('switch-off');
+			$("input#interest_reserve_calc_on_type").val(0);
+			$('#interest_reserve').prop('readonly', true);
+	  	// $('#interest_reserve').val('0.00');
+	  	$('#interest_reserve_type').prop('readonly', false);
+	  	// $('#interest_reserve_type').val('0');
+
+	  }
+
+	// Toggle Downpayment
+	  downpaymentPercentageOnFunction = function(){
+			$("#downpayment_calc_on_percent").parent().children('div.switch-animate').removeClass('switch-off').addClass('switch-on');
+			$("input#downpayment_calc_on_percent").val(1);
+			$('#downpayment_percent').prop('readonly', false);
+	  	$('#downpayment_percent').val('0.00');
+	  	$('#downpayment_amount').prop('readonly', true);
+	  	$('#downpayment_amount').val('0');
+
+	  }
+
+	   downpaymentPercentageOffFunction = function(){
+			$("#postdownpayment_calc_on_percent").parent().children('div.switch-animate').removeClass('switch-on').addClass('switch-off');
+			$("input#downpayment_calc_on_percent").val(0);
+			$('#downpayment_percent').prop('readonly', true);
+	  	$('#downpayment_percent').val('0.00');
+	  	$('#downpayment_amount').prop('readonly', false);
+	  	$('#downpayment_amount').val('0');
+
+	  }
+
+	   checkProgramFunction = function(){
+			// Init Function
+	  	initFuction();
+
+	  	var loan_program_id
+	  	loan_program_id = $('#loan_program_id').find("option:selected").val();
+
+	  	// If bridge
+	  	if (loan_program_id == 6){
+	  		bridgeFunctions();
+	  	}
+
+	  	// If Fix and Flip
+	  	if (loan_program_id == 12){
+	  		ffFunctions();
+	  	}
+
+	  	// If Fix and Flip
+	  	if (loan_program_id == 3){
+	  		v100Functions();
+	  	}
+
+	  	// If vMax
+	  	if (loan_program_id == 4){
+	  		vMaxFunctions();
+	  	}
+
+
+	  	// If construction
+	  	if (loan_program_id == 11){
+	  		constructionFunctions();
+	  	}
+
+	  	//Fix
+	  	fix();
+
+	  }
+
+	  	  // Callback Functions
+	  fix = function(){
+	  	$('.selectpicker').selectpicker('refresh');
+	  }
+
+		// Check the value on change of the loan program
+	  $('#loan_program_id').on('change', function(){
+
+	  	checkProgramFunction();
+
+	  });
+
+
+	  // Check the value on change of the loan program
+	  $('#interest_type').on('change', function(){
+	  	// Init Function
+	  	interestInitFuction();
+
+	  	// If dutch
+	  	if (this.value == "Dutch"){
+	  		dutchFunctions();
+	  	}
+
+	  	// If Drawn
+	  	if (this.value == "Drawn"){
+	  		drawnFunctions();
+	  	}
+
+	  	//Fix
+	  	fix();
+
+	  });
+
+	    // Check the value on change of the loan program
+	  $('#draw_method').on('change', function(){
+	  	// Init Function
+	  	drawMethodInitFuction();
+
+	  	// If Advance
+	  	if (this.value == "Advance"){
+	  		advanceFunctions();
+	  	}
+
+	  	// If Reimburesment
+	  	if (this.value == "Reimbursement"){
+	  		reimbursementFunctions();
+	  	}
+
+
+	  	//Fix
+	  	fix();
+
+	  });
+
+	    // Check the value on change of the loan program
+	  $('#downpayment_calc_on_percent').on('switchChange.bootstrapSwitch', function (event, state) {
+
+		  console.log(this); // DOM element
+		  console.log(event); // jQuery event
+		  console.log(state); // true | false
+
+	  	// If Amount
+	  	if (state == false){
+	  		downpaymentPercentageOffFunction();
+	  	}
+
+	  	// If Percentage
+	  	if (state == true){
+	  		downpaymentPercentageOnFunction();
+	  	}
+
+	  });
+
+
+	  // Init
+	  checkProgramFunction();
+	// End Ready
+	});
+
+	</script>
+<% end %>
